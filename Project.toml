@@ -1,0 +1,14 @@
+name = "ComplexOptInterface"
+uuid = "25c3070e-1275-41b5-afef-2f982c87090a"
+authors = ["Benoît Legat <benoit.legat@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+MathOptInterface = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
+
+[extras]
+CSDP = "0a46da34-8e4b-519e-b418-48813639ff34"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test", "CSDP"]
