@@ -7,6 +7,11 @@ import ComplexOptInterface
 const COI = ComplexOptInterface
 
 """
+    projection_test(optimizer, config)
+
+Test computation of the projection of a hermitian matrix to the cone
+of hermitian positive semidefinite matrices.
+
 [ 1    -1+im]   [ 1-im  ?]   [√3    ]   [ 1+im  -1+√3]
 [-1-im -1   ] = [-1+√3  ?] * [   -√3] * [  ?      ?  ] / (6 - 2√3)
 So it's projection to the Hermitian PSD cone is
@@ -19,12 +24,13 @@ which is
 [(1+√3)/2  -1/2+im/2]
 [-1/2+im/2 (-1+√3)/2]
 """
-function test(optimizer, config)
+function projection_test(optimizer, config)
     atol = config.atol
     rtol = config.rtol
 
     MOI.empty!(optimizer)
-    x, cx = MOI.add_constrained_variables(optimizer, COI.HermitianPositiveSemidefiniteConeTriangle(2))
+    set = COI.HermitianPositiveSemidefiniteConeTriangle(2)
+    x, cx = MOI.add_constrained_variables(optimizer, set)
     fx = MOI.SingleVariable.(x)
     x11 = fx[1:3]
     x12 = fx[4]
@@ -36,13 +42,11 @@ function test(optimizer, config)
     MOI.set(optimizer, MOI.ObjectiveFunction{typeof(ft)}(), ft)
     MOI.optimize!(optimizer)
     primal = [(1 + √3) / 2, -1/2, (-1 + √3)/2, 1/2]
+    dual = [(3 - √3) / 6, 0.2886751198, (3 + √3) / 6, -0.2886751197]
+    @test MOI.Utilities.set_dot(primal, dual, set) ≈ 0 atol=atol rtol=rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ primal atol=atol rtol=rtol
     @test MOI.get(optimizer, MOI.ConstraintPrimal(), cx) ≈ primal atol=atol rtol=rtol
-    dual = MOI.get(optimizer, MOI.ConstraintDual(), cx)
-    @test dual[1] ≈ (3 - √3) / 6 atol=atol rtol=rtol
-    @test dual[2] ≈ 0.2886751197468812 atol=atol rtol=rtol
-    @test dual[3] ≈ (3 + √3) / 6 atol=atol rtol=rtol
-    @test dual[4] ≈ 0.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.ConstraintDual(), cx) ≈ dual atol=atol rtol=rtol
 end
 
 import CSDP

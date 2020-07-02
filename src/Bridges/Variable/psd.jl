@@ -205,7 +205,7 @@ function MOI.get(model::MOI.ModelLike, attr::MOI.ConstraintDual,
             if i != j
                 k += 1
                 mapped[N + k] += dual[k12]
-                mapped[N + k] += dual[k21]
+                mapped[N + k] -= dual[k21]
             end
         end
         k12 += n
