@@ -14,6 +14,6 @@ An extension of MathOptInterface to complex sets
 [codecov-img]: http://codecov.io/github/blegat/ComplexOptInterface.jl/coverage.svg?branch=master
 [codecov-url]: http://codecov.io/github/blegat/ComplexOptInterface.jl?branch=master
 
-[gitter-url]: https://gitter.im/jump-dev/JuMP.jl?utm_source=share-link&utm_medium=link&utm_campaign=share-link
-[gitter-img]: https://badges.gitter.im/jump-dev/JuMP.jl.svg
+[gitter-url]: https://gitter.im/JuliaOpt/JuMP-dev?utm_source=share-link&utm_medium=link&utm_campaign=share-link
+[gitter-img]: https://badges.gitter.im/JuliaOpt/JuMP-dev.svg
 [discourse-url]: https://discourse.julialang.org/c/domain/opt
