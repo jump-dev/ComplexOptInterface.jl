@@ -30,7 +30,7 @@ Moreover, as `(S ∩ T)* = S* + T*` for cones `S` and `T`, we have
 P* = S* + con_11_22* + con_12_21* + con12diag*
 ```
 the dual vector of `P*` is the dual vector of `S*` for which we add in the corresponding
-entries the dual of the three constraitns, multiplied by the coefficients for the `EqualTo` constraints.
+entries the dual of the three constraints, multiplied by the coefficients for the `EqualTo` constraints.
 Note that these contribution cancel out when we multiply them by `A*`:
 A* * (S* + con_11_22* + con_12_21* + con12diag*) = A* * S*
 so we can just ignore them.

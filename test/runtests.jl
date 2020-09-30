@@ -53,5 +53,5 @@ import CSDP
 @testset "CSDP" begin
     bridged = MOI.instantiate(CSDP.Optimizer, with_bridge_type=Float64)
     MOI.Bridges.add_bridge(bridged, COI.Bridges.Variable.HermitianToSymmetricPSDBridge{Float64})
-    test(bridged, MOI.Test.TestConfig(atol=1e-4, rtol=1e-4))
+    projection_test(bridged, MOI.Test.TestConfig(atol=1e-4, rtol=1e-4))
 end
