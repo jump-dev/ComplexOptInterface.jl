@@ -4,7 +4,6 @@ codecov: true
 os:
   - linux
 julia:
-  - 1.0
   - 1
 notifications:
   email: false
