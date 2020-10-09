@@ -1,18 +1,3 @@
-function operate_coefficient(f, T::Type, term::MOI.ScalarAffineTerm)
-    MOI.ScalarAffineTerm(f(term.coefficient), term.variable_index)
-end
-function operate_coefficient(f, T::Type, term::MOI.VectorAffineTerm)
-    return MOI.VectorAffineTerm(term.output_index, operate_coefficient(f, T, term.scalar_term))
-end
-function operate_coefficients(f, T::Type, func::MOI.VectorAffineFunction)
-    return MOI.VectorAffineFunction(
-        [operate_coefficient(f, T, term) for term in func.terms],
-        map(f, func.constants)
-    )
-end
-
-similar_type(::Type{<:MOI.VectorAffineFunction}, T::Type) = MOI.VectorAffineFunction{T}
-
 struct SplitZeroBridge{T, F<:MOI.Utilities.TypedLike{T}, G<:MOI.Utilities.TypedLike{Complex{T}}} <: MOI.Bridges.Constraint.AbstractBridge
     dimension::Int
     constraint::MOI.ConstraintIndex{F, MOI.Zeros}
@@ -27,8 +12,8 @@ function MOI.Bridges.Constraint.bridge_constraint(
     f::G,
     set::MOI.Zeros
 ) where {T, F, G}
-    real_part = operate_coefficients(real, T, f)
-    imag_part = operate_coefficients(imag, T, f)
+    real_part = real(f)
+    imag_part = MOI.Utilities.operate(imag, T, f)
     real_indices = _nonzero_indices(real_part)
     imag_indices = _nonzero_indices(imag_part)
     func = MOIU.operate(
@@ -40,6 +25,7 @@ function MOI.Bridges.Constraint.bridge_constraint(
     return SplitZeroBridge{T, F, G}(MOI.dimension(set), constraint, real_indices, imag_indices)
 end
 
+# We don't support `MOI.VectorOfVariables` as it would be a self-loop in the bridge graph
 function MOI.supports_constraint(
     ::Type{SplitZeroBridge{T}}, ::Type{<:MOI.Utilities.TypedLike{Complex{T}}},
     ::Type{MOI.Zeros}) where T
@@ -52,7 +38,8 @@ end
 function MOI.Bridges.Constraint.concrete_bridge_type(
     ::Type{<:SplitZeroBridge{T}}, G::Type{<:MOI.Utilities.TypedLike},
     ::Type{MOI.Zeros}) where T
-    return SplitZeroBridge{T, similar_type(G, T), G}
+    F = MA.promote_operation(imag, G)
+    return SplitZeroBridge{T, F, G}
 end
 
 # Attributes, Bridge acting as a model
