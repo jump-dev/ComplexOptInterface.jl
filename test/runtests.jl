@@ -49,7 +49,23 @@ function projection_test(optimizer, config)
     @test MOI.get(optimizer, MOI.ConstraintDual(), cx) ≈ dual atol=atol rtol=rtol
 end
 
-function zero_test(optimizer, config)
+function hermitian_psd_test(optimizer, config)
+    atol = config.atol
+    rtol = config.rtol
+
+    MOI.empty!(optimizer)
+    set = COI.HermitianPositiveSemidefiniteConeTriangle(3)
+    x, cx = MOI.add_constrained_variables(optimizer, set)
+    fx = MOI.SingleVariable.(x)
+    MOI.add_constraints(optimizer, fx, MOI.EqualTo.([1.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0]))
+    MOI.optimize!(optimizer)
+    primal = [1.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0]
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ primal atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.ConstraintPrimal(), cx) ≈ primal atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.ConstraintDual(), cx) ≈ zeros(9) atol=atol rtol=rtol
+end
+
+function zero_1_test(optimizer, config)
     atol = config.atol
     rtol = config.rtol
 
@@ -71,14 +87,42 @@ function zero_test(optimizer, config)
     @test MOI.get(optimizer, MOI.ConstraintDual(), c) ≈ [0.0 + 0.0im] atol=atol rtol=rtol
 end
 
+function zero_2_test(optimizer, config)
+    atol = config.atol
+    rtol = config.rtol
+
+    MOI.empty!(optimizer)
+    x, cx = MOI.add_constrained_variables(optimizer, MOI.Nonnegatives(1))
+    fx = MOI.SingleVariable.(x)
+    func = (1.0 + 0.0im) * fx[1] + 1.0im * fx[1] - 2.0im - (1.0 + 0.0im) * fx[1]
+    c = MOI.add_constraint(
+        optimizer,
+        MOI.Utilities.operate(vcat, Complex{Float64}, func),
+        MOI.Zeros(1)
+    )
+    MOI.optimize!(optimizer)
+    @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ [2.0] atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.ConstraintPrimal(), cx) ≈ [2.0] atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.ConstraintDual(), cx) ≈ zeros(1) atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.ConstraintPrimal(), c) ≈ [0.0 + 0.0im] atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.ConstraintDual(), c) ≈ [0.0 + 0.0im] atol=atol rtol=rtol
+end
+
 import CSDP
 @testset "CSDP" begin
     config = MOI.Test.TestConfig(atol=1e-4, rtol=1e-4)
     bridged = MOI.instantiate(CSDP.Optimizer, with_bridge_type=Float64)
     MOI.Bridges.add_bridge(bridged, COI.Bridges.Variable.HermitianToSymmetricPSDBridge{Float64})
     projection_test(bridged, config)
+    hermitian_psd_test(bridged, config)
     bridged = MOI.Bridges.LazyBridgeOptimizer(MOI.Utilities.CachingOptimizer(MOI.Utilities.Model{Float64}(), CSDP.Optimizer()))
     MOI.Bridges.add_bridge(bridged, MOI.Bridges.Constraint.ScalarizeBridge{Float64})
     MOI.Bridges.add_bridge(bridged, COI.Bridges.Constraint.SplitZeroBridge{Float64})
-    zero_test(bridged, config)
+    zero_1_test(bridged, config)
+    cis = MOI.get(bridged.model, MOI.ListOfConstraintIndices{MOI.ScalarAffineFunction{Float64}, MOI.EqualTo{Float64}}())
+    @test length(cis) == 2
+    zero_2_test(bridged, config)
+    cis = MOI.get(bridged.model, MOI.ListOfConstraintIndices{MOI.ScalarAffineFunction{Float64}, MOI.EqualTo{Float64}}())
+    @test length(cis) == 1
 end

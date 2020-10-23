@@ -56,28 +56,30 @@ function MOIB.Variable.bridge_constrained_variable(
     k22 = MOI.dimension(MOI.PositiveSemidefiniteConeTriangle(n))
     X11() = MOI.SingleVariable(variables[k11])
     X12() = MOI.SingleVariable(variables[k12])
-    X21() = MOI.SingleVariable(variables[k21])
+    function X21(i, j)
+        I = j
+        J = n + i
+        k21 = MOI.dimension(MOI.PositiveSemidefiniteConeTriangle(J - 1)) + I
+        return MOI.SingleVariable(variables[k21])
+    end
     X22() = MOI.SingleVariable(variables[k22])
     con_11_22 = EQ{T}[]
     con12diag = EQ{T}[]
     con_12_21 = EQ{T}[]
     for j in 1:n
-        k21 -= n + 1 - j
         k22 += n
         for i in 1:j
             k11 += 1
             k12 += 1
-            k21 -= 1
             k22 += 1
             push!(con_11_22, MOI.add_constraint(model, MOI.Utilities.operate(-, T, X11(), X22()), MOI.EqualTo(zero(T))))
             if i == j
                 push!(con12diag, MOI.add_constraint(model, convert(MOI.ScalarAffineFunction{T}, X12()), MOI.EqualTo(zero(T))))
             else
-                push!(con_12_21, MOI.add_constraint(model, MOI.Utilities.operate(+, T, X21(), X12()), MOI.EqualTo(zero(T))))
+                push!(con_12_21, MOI.add_constraint(model, MOI.Utilities.operate(+, T, X21(i, j), X12()), MOI.EqualTo(zero(T))))
             end
         end
         k12 += n
-        k21 -= n - j
     end
 
     return HermitianToSymmetricPSDBridge(variables, psd_constraint, con_11_22, con12diag, con_12_21)
