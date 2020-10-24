@@ -36,10 +36,10 @@ Note that even if you add a `MOI.ScalarAffineFunction{Complex{T}}`-in-`EqualTo{C
 it may be bridged by a slack bridge into a variable constrained in `EqualTo{Complex{T}}`.
 Luckily, this bridge might not be selected but remain causious with sets with complex entries.
 
-[build-img]: https://travis-ci.com/blegat/ComplexOptInterface.jl.svg?branch=master
-[build-url]: https://travis-ci.com/blegat/ComplexOptInterface.jl
-[codecov-img]: http://codecov.io/github/blegat/ComplexOptInterface.jl/coverage.svg?branch=master
-[codecov-url]: http://codecov.io/github/blegat/ComplexOptInterface.jl?branch=master
+[build-img]: https://travis-ci.com/jump-dev/ComplexOptInterface.jl.svg?branch=master
+[build-url]: https://travis-ci.com/jump-dev/ComplexOptInterface.jl
+[codecov-img]: http://codecov.io/github/jump-dev/ComplexOptInterface.jl/coverage.svg?branch=master
+[codecov-url]: http://codecov.io/github/jump-dev/ComplexOptInterface.jl?branch=master
 
 [gitter-url]: https://gitter.im/JuliaOpt/JuMP-dev?utm_source=share-link&utm_medium=link&utm_campaign=share-link
 [gitter-img]: https://badges.gitter.im/JuliaOpt/JuMP-dev.svg
