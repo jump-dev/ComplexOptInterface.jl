@@ -7,5 +7,3 @@ julia:
   - 1
 notifications:
   email: false
--before_script:
- - julia -e 'using Pkg; Pkg.add(PackageSpec(name="MathOptInterface", rev="bl/complex_operations"))'
