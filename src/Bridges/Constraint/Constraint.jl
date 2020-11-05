@@ -1,6 +1,9 @@
 module Constraint
 
-using MathOptInterface
+import MutableArithmetics
+const MA = MutableArithmetics
+
+import MathOptInterface
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 const MOIB = MOI.Bridges
