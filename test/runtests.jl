@@ -107,7 +107,7 @@ end
 
 import CSDP
 @testset "CSDP" begin
-    config = MOI.Test.TestConfig(atol=1e-4, rtol=1e-4)
+    config = MOI.Test.Config(atol=1e-4, rtol=1e-4)
     bridged = MOI.instantiate(CSDP.Optimizer, with_bridge_type=Float64)
     MOI.Bridges.add_bridge(bridged, COI.Bridges.Variable.HermitianToSymmetricPSDBridge{Float64})
     projection_test(bridged, config)
