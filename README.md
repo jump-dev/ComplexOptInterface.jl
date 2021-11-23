@@ -16,7 +16,7 @@ There are two types of complex sets:
    For instance, `[x y+zim; y-zim w]` is vectorized as
    `[x, y, w, z]`.
 
-Sets with complex entries **should not** be used with `Single` or `VectorOfVariables` constraints
+Sets with complex entries **should not** be used with `VariableIndex` or `VectorOfVariables` constraints
 as the variables in MathOptInterface are assumed to be real.
 Indeed, for instance doing
 ```julia
@@ -25,7 +25,7 @@ x, cx = MOI.add_constrained_variable(model, MOI.EqualTo(1 + 2im))
 fallbacks to
 ```julia
 x = MOI.add_variable(model)
-cx = MOI.add_constraint(model, MOI.SingleVariable(x), MOI.EqualTo(1 + 2im))
+cx = MOI.add_constraint(model, x, MOI.EqualTo(1 + 2im))
 ```
 In the first line, the solvers create a real variable.
 Moreover, in the bridge from `MOI.ScalarAffineFunction{Complex{T}}`-in-`EqualTo{Complex{T}}`

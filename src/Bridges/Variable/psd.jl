@@ -54,15 +54,15 @@ function MOIB.Variable.bridge_constrained_variable(
     k12 = MOI.dimension(MOI.PositiveSemidefiniteConeTriangle(n))
     k21 = MOI.dimension(MOI.PositiveSemidefiniteConeTriangle(2n)) + 1
     k22 = MOI.dimension(MOI.PositiveSemidefiniteConeTriangle(n))
-    X11() = MOI.SingleVariable(variables[k11])
-    X12() = MOI.SingleVariable(variables[k12])
+    X11() = variables[k11]
+    X12() = variables[k12]
     function X21(i, j)
         I = j
         J = n + i
         k21 = MOI.dimension(MOI.PositiveSemidefiniteConeTriangle(J - 1)) + I
-        return MOI.SingleVariable(variables[k21])
+        return variables[k21]
     end
-    X22() = MOI.SingleVariable(variables[k22])
+    X22() = variables[k22]
     con_11_22 = EQ{T}[]
     con12diag = EQ{T}[]
     con_12_21 = EQ{T}[]
@@ -222,11 +222,11 @@ function MOI.get(model::MOI.ModelLike, attr::MOI.VariablePrimal,
 end
 
 function MOIB.bridged_function(bridge::HermitianToSymmetricPSDBridge{T}, i::MOIB.Variable.IndexInVector) where T
-    func = MOI.SingleVariable(_variable(bridge, i))
+    func = _variable(bridge, i)
     return convert(MOI.ScalarAffineFunction{T}, func)
 end
 function MOIB.Variable.unbridged_map(bridge::HermitianToSymmetricPSDBridge{T}, vi::MOI.VariableIndex,
                        i::MOIB.Variable.IndexInVector) where T
-    func = convert(MOI.ScalarAffineFunction{T}, MOI.SingleVariable(vi))
+    func = convert(MOI.ScalarAffineFunction{T}, vi)
     return (_variable(bridge, i) => func,)
 end

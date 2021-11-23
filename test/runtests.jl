@@ -31,12 +31,11 @@ function projection_test(optimizer, config)
     MOI.empty!(optimizer)
     set = COI.HermitianPositiveSemidefiniteConeTriangle(2)
     x, cx = MOI.add_constrained_variables(optimizer, set)
-    fx = MOI.SingleVariable.(x)
-    x11 = fx[1:3]
-    x12 = fx[4]
+    x11 = x[1:3]
+    x12 = x[4]
     t = MOI.add_variable(optimizer)
     ft = MOI.SingleVariable(t)
-    MOI.add_constraint(optimizer, MOI.Utilities.operate(vcat, Float64, ft, fx[1] - 1.0, √2 * (fx[2] + 1.0), fx[3] + 1.0, √2 * (fx[4] - 1.0)),
+    MOI.add_constraint(optimizer, MOI.Utilities.operate(vcat, Float64, ft, x[1] - 1.0, √2 * (x[2] + 1.0), x[3] + 1.0, √2 * (x[4] - 1.0)),
                        MOI.SecondOrderCone(5))
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MIN_SENSE)
     MOI.set(optimizer, MOI.ObjectiveFunction{typeof(ft)}(), ft)
@@ -56,8 +55,7 @@ function hermitian_psd_test(optimizer, config)
     MOI.empty!(optimizer)
     set = COI.HermitianPositiveSemidefiniteConeTriangle(3)
     x, cx = MOI.add_constrained_variables(optimizer, set)
-    fx = MOI.SingleVariable.(x)
-    MOI.add_constraints(optimizer, fx, MOI.EqualTo.([1.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0]))
+    MOI.add_constraints(optimizer, x, MOI.EqualTo.([1.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0]))
     MOI.optimize!(optimizer)
     primal = [1.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0]
     @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ primal atol=atol rtol=rtol
@@ -71,8 +69,7 @@ function zero_1_test(optimizer, config)
 
     MOI.empty!(optimizer)
     x, cx = MOI.add_constrained_variables(optimizer, MOI.Nonnegatives(2))
-    fx = MOI.SingleVariable.(x)
-    func = (1.0 + 2.0im) * fx[1] + (1.0 - 1.0im) * fx[2] + (-1.0 + -1.0im)
+    func = (1.0 + 2.0im) * x[1] + (1.0 - 1.0im) * x[2] + (-1.0 + -1.0im)
     c = MOI.add_constraint(
         optimizer,
         MOI.Utilities.operate(vcat, Complex{Float64}, func),
@@ -93,8 +90,7 @@ function zero_2_test(optimizer, config)
 
     MOI.empty!(optimizer)
     x, cx = MOI.add_constrained_variables(optimizer, MOI.Nonnegatives(1))
-    fx = MOI.SingleVariable.(x)
-    func = (1.0 + 0.0im) * fx[1] + 1.0im * fx[1] - 2.0im - (1.0 + 0.0im) * fx[1]
+    func = (1.0 + 0.0im) * x[1] + 1.0im * x[1] - 2.0im - (1.0 + 0.0im) * x[1]
     c = MOI.add_constraint(
         optimizer,
         MOI.Utilities.operate(vcat, Complex{Float64}, func),
