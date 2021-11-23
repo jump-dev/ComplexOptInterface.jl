@@ -1,9 +1,0 @@
-# Documentation: http://docs.travis-ci.com/user/languages/julia/
-language: julia
-codecov: true
-os:
-  - linux
-julia:
-  - 1
-notifications:
-  email: false
