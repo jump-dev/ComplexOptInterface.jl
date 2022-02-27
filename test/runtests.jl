@@ -34,11 +34,10 @@ function projection_test(optimizer, config)
     x11 = x[1:3]
     x12 = x[4]
     t = MOI.add_variable(optimizer)
-    ft = MOI.SingleVariable(t)
-    MOI.add_constraint(optimizer, MOI.Utilities.operate(vcat, Float64, ft, x[1] - 1.0, √2 * (x[2] + 1.0), x[3] + 1.0, √2 * (x[4] - 1.0)),
+    MOI.add_constraint(optimizer, MOI.Utilities.operate(vcat, Float64, t, x[1] - 1.0, √2 * (x[2] + 1.0), x[3] + 1.0, √2 * (x[4] - 1.0)),
                        MOI.SecondOrderCone(5))
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MIN_SENSE)
-    MOI.set(optimizer, MOI.ObjectiveFunction{typeof(ft)}(), ft)
+    MOI.set(optimizer, MOI.ObjectiveFunction{typeof(t)}(), t)
     MOI.optimize!(optimizer)
     primal = [(1 + √3) / 2, -1/2, (-1 + √3)/2, 1/2]
     dual = [(3 - √3) / 6, 0.2886751198, (3 + √3) / 6, -0.2886751197]
