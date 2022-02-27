@@ -97,7 +97,7 @@ function MOI.get(
         MOI.ConstraintDualStart,
     },
     bridge::SplitEqualToBridge{T},
-) where T
+) where {T}
     if isnothing(bridge.real_constraint)
         real_value = zero(T)
     else

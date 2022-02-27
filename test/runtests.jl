@@ -87,10 +87,13 @@ function equalto_1_test(optimizer, config)
     c = MOI.add_constraint(optimizer, func, MOI.EqualTo(1.0 + 1.0im))
     MOI.optimize!(optimizer)
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
-    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ [2 / 3, 1 / 3] atol = atol rtol = rtol
-    @test MOI.get(optimizer, MOI.ConstraintPrimal(), cx) ≈ [2 / 3, 1 / 3] atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ [2 / 3, 1 / 3] atol = atol rtol =
+        rtol
+    @test MOI.get(optimizer, MOI.ConstraintPrimal(), cx) ≈ [2 / 3, 1 / 3] atol = atol rtol =
+        rtol
     @test MOI.get(optimizer, MOI.ConstraintDual(), cx) ≈ zeros(2) atol = atol rtol = rtol
-    @test MOI.get(optimizer, MOI.ConstraintPrimal(), c) ≈ 1.0 + 1.0im atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.ConstraintPrimal(), c) ≈ 1.0 + 1.0im atol = atol rtol =
+        rtol
     @test MOI.get(optimizer, MOI.ConstraintDual(), c) ≈ 0.0 + 0.0im atol = atol rtol = rtol
 end
 
@@ -107,10 +110,8 @@ function equalto_2_test(optimizer, config)
     @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ [2.0] atol = atol rtol = rtol
     @test MOI.get(optimizer, MOI.ConstraintPrimal(), cx) ≈ [2.0] atol = atol rtol = rtol
     @test MOI.get(optimizer, MOI.ConstraintDual(), cx) ≈ zeros(1) atol = atol rtol = rtol
-    @test MOI.get(optimizer, MOI.ConstraintPrimal(), c) ≈ 2.0im atol = atol rtol =
-        rtol
-    @test MOI.get(optimizer, MOI.ConstraintDual(), c) ≈ 0.0 + 0.0im atol = atol rtol =
-        rtol
+    @test MOI.get(optimizer, MOI.ConstraintPrimal(), c) ≈ 2.0im atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.ConstraintDual(), c) ≈ 0.0 + 0.0im atol = atol rtol = rtol
 end
 
 function zero_1_test(optimizer, config)
