@@ -11,6 +11,7 @@ const MOIB = MOI.Bridges
 import ComplexOptInterface
 const COI = ComplexOptInterface
 
+include("split_equalto.jl")
 include("split_zero.jl")
 
 end
