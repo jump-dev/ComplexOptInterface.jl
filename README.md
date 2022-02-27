@@ -1,6 +1,6 @@
 # ComplexOptInterface
 
-**This package is this in early development, feedback is welcome!**
+**This package is still in early development, feedback is welcome!**
 
 | **Build Status** | **Social** |
 |:----------------:|:----------:|
