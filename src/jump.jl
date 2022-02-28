@@ -4,7 +4,7 @@ import JuMP
 function add_all_bridges(model::JuMP.Model)
     JuMP.add_bridge(model, Bridges.Variable.HermitianToSymmetricPSDBridge)
     JuMP.add_bridge(model, Bridges.Constraint.SplitEqualToBridge)
-    JuMP.add_bridge(model, Bridges.Constraint.SplitZeroBridge)
+    return JuMP.add_bridge(model, Bridges.Constraint.SplitZeroBridge)
 end
 
 struct HermitianPSDCone end
@@ -17,11 +17,17 @@ function JuMP.vectorize(matrix::Matrix, ::HermitianMatrixShape)
     n = LinearAlgebra.checksquare(matrix)
     return vcat(
         JuMP.vectorize(_real.(matrix), JuMP.SymmetricMatrixShape(n)),
-        JuMP.vectorize(_imag.(matrix[1:(end-1),2:end]), JuMP.SymmetricMatrixShape(n - 1)),
+        JuMP.vectorize(
+            _imag.(matrix[1:(end-1), 2:end]),
+            JuMP.SymmetricMatrixShape(n - 1),
+        ),
     )
 end
 
-function JuMP.reshape_vector(v::Vector{T}, shape::HermitianMatrixShape) where T
+function JuMP.reshape_vector(
+    v::Vector{T},
+    shape::HermitianMatrixShape,
+) where {T}
     NewType = MA.promote_operation(MA.add_mul, T, Complex{Bool}, T)
     n = shape.side_dimension
     matrix = Matrix{NewType}(undef, n, n)
@@ -42,18 +48,20 @@ end
 
 function _mapinfo(f::Function, v::JuMP.ScalarVariable)
     info = v.info
-    return JuMP.ScalarVariable(JuMP.VariableInfo(
-        info.has_lb,
-        f(info.lower_bound),
-        info.has_ub,
-        f(info.upper_bound),
-        info.has_fix,
-        f(info.fixed_value),
-        info.has_start,
-        f(info.start),
-        info.binary,
-        info.integer,
-    ))
+    return JuMP.ScalarVariable(
+        JuMP.VariableInfo(
+            info.has_lb,
+            f(info.lower_bound),
+            info.has_ub,
+            f(info.upper_bound),
+            info.has_fix,
+            f(info.fixed_value),
+            info.has_start,
+            f(info.start),
+            info.binary,
+            info.integer,
+        ),
+    )
 end
 
 _real(s::String) = s
@@ -64,7 +72,10 @@ _imag(v::JuMP.ScalarVariable) = _mapinfo(imag, v)
 _conj(v::JuMP.ScalarVariable) = _mapinfo(conj, v)
 function _isreal(v::JuMP.ScalarVariable)
     info = v.info
-    return isreal(info.lower_bound) && isreal(info.upper_bound) && isreal(info.fixed_value) && isreal(info.start)
+    return isreal(info.lower_bound) &&
+           isreal(info.upper_bound) &&
+           isreal(info.fixed_value) &&
+           isreal(info.start)
 end
 
 function _vectorize_variables(_error::Function, matrix::Matrix)
@@ -83,7 +94,7 @@ function _vectorize_variables(_error::Function, matrix::Matrix)
             end
         end
     end
-    JuMP.vectorize(matrix, HermitianMatrixShape(n))
+    return JuMP.vectorize(matrix, HermitianMatrixShape(n))
 end
 
 function JuMP.build_variable(
@@ -100,4 +111,3 @@ function JuMP.build_variable(
         shape,
     )
 end
-

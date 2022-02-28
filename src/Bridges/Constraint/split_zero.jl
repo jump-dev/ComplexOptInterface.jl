@@ -10,7 +10,8 @@ struct SplitZeroBridge{
 end
 function _nonzero_indices(func::MOI.AbstractVectorFunction)
     return [
-        i for (i, scalar_func) in enumerate(MOIU.scalarize(func)) if !iszero(scalar_func)
+        i for (i, scalar_func) in enumerate(MOIU.scalarize(func)) if
+        !iszero(scalar_func)
     ]
 end
 function MOI.Bridges.Constraint.bridge_constraint(
@@ -50,8 +51,12 @@ function MOI.supports_constraint(
 ) where {T}
     return true
 end
-MOIB.added_constrained_variable_types(::Type{<:SplitZeroBridge}) = Tuple{DataType}[]
-function MOIB.added_constraint_types(::Type{SplitZeroBridge{T,F,G}}) where {T,F,G}
+function MOIB.added_constrained_variable_types(::Type{<:SplitZeroBridge})
+    return Tuple{DataType}[]
+end
+function MOIB.added_constraint_types(
+    ::Type{SplitZeroBridge{T,F,G}},
+) where {T,F,G}
     return Tuple{DataType,DataType}[(F, MOI.Zeros)]
 end
 function MOI.Bridges.Constraint.concrete_bridge_type(
@@ -64,7 +69,10 @@ function MOI.Bridges.Constraint.concrete_bridge_type(
 end
 
 # Attributes, Bridge acting as a model
-function MOI.get(::SplitZeroBridge{T,F}, ::MOI.NumberOfConstraints{F,MOI.Zeros}) where {T,F}
+function MOI.get(
+    ::SplitZeroBridge{T,F},
+    ::MOI.NumberOfConstraints{F,MOI.Zeros},
+) where {T,F}
     return 1
 end
 function MOI.get(
@@ -76,7 +84,7 @@ end
 
 # Indices
 function MOI.delete(model::MOI.ModelLike, bridge::SplitZeroBridge)
-    MOI.delete(model, bridge.constraint)
+    return MOI.delete(model, bridge.constraint)
 end
 
 # Attributes, Bridge acting as a constraint
@@ -85,7 +93,6 @@ function MOI.supports(
     ::Union{MOI.ConstraintPrimalStart,MOI.ConstraintDualStart},
     ::Type{<:SplitZeroBridge},
 )
-
     return true
 end
 function MOI.get(
@@ -114,12 +121,15 @@ function MOI.set(
     bridge::SplitZeroBridge{T},
     value,
 ) where {T}
-    input = Vector{T}(undef, length(bridge.real_indices) + length(bridge.imag_indices))
+    input = Vector{T}(
+        undef,
+        length(bridge.real_indices) + length(bridge.imag_indices),
+    )
     for (i, idx) in enumerate(bridge.real_indices)
         input[i] = real(value[idx])
     end
     for (i, idx) in enumerate(bridge.imag_indices)
         input[length(bridge.real_indices)+i] = imag(value[idx])
     end
-    MOI.set(model, attr, bridge.constraint, input)
+    return MOI.set(model, attr, bridge.constraint, input)
 end

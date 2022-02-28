@@ -51,10 +51,11 @@ function MOIB.Variable.bridge_constrained_variable(
     model::MOI.ModelLike,
     set::COI.HermitianPositiveSemidefiniteConeTriangle,
 ) where {T}
-
     n = set.side_dimension
-    variables, psd_constraint =
-        MOI.add_constrained_variables(model, MOI.PositiveSemidefiniteConeTriangle(2n))
+    variables, psd_constraint = MOI.add_constrained_variables(
+        model,
+        MOI.PositiveSemidefiniteConeTriangle(2n),
+    )
 
     k11 = 0
     k12 = MOI.dimension(MOI.PositiveSemidefiniteConeTriangle(n))
@@ -72,9 +73,9 @@ function MOIB.Variable.bridge_constrained_variable(
     con_11_22 = EQ{T}[]
     con12diag = EQ{T}[]
     con_12_21 = EQ{T}[]
-    for j = 1:n
+    for j in 1:n
         k22 += n
-        for i = 1:j
+        for i in 1:j
             k11 += 1
             k12 += 1
             k22 += 1
@@ -124,10 +125,14 @@ function MOIB.Variable.supports_constrained_variable(
 )
     return true
 end
-function MOIB.added_constrained_variable_types(::Type{<:HermitianToSymmetricPSDBridge})
+function MOIB.added_constrained_variable_types(
+    ::Type{<:HermitianToSymmetricPSDBridge},
+)
     return [(MOI.PositiveSemidefiniteConeTriangle,)]
 end
-function MOIB.added_constraint_types(::Type{HermitianToSymmetricPSDBridge{T}}) where {T}
+function MOIB.added_constraint_types(
+    ::Type{HermitianToSymmetricPSDBridge{T}},
+) where {T}
     return [(MOI.ScalarAffineFunction{T}, MOI.EqualTo{T})]
 end
 
@@ -135,12 +140,18 @@ end
 function MOI.get(bridge::HermitianToSymmetricPSDBridge, ::MOI.NumberOfVariables)
     return length(bridge.variables)
 end
-function MOI.get(bridge::HermitianToSymmetricPSDBridge, ::MOI.ListOfVariableIndices)
+function MOI.get(
+    bridge::HermitianToSymmetricPSDBridge,
+    ::MOI.ListOfVariableIndices,
+)
     return bridge.variables
 end
 function MOI.get(
     bridge::HermitianToSymmetricPSDBridge,
-    ::MOI.NumberOfConstraints{MOI.VectorOfVariables,MOI.PositiveSemidefiniteConeTriangle},
+    ::MOI.NumberOfConstraints{
+        MOI.VectorOfVariables,
+        MOI.PositiveSemidefiniteConeTriangle,
+    },
 )
     return 1
 end
@@ -157,7 +168,9 @@ function MOI.get(
     bridge::HermitianToSymmetricPSDBridge{T},
     ::MOI.NumberOfConstraints{MOI.ScalarAffineFunction{T},MOI.EqualTo{T}},
 ) where {T}
-    return length(bridge.con_11_22) + length(bridge.con12diag) + length(bridge.con_12_21)
+    return length(bridge.con_11_22) +
+           length(bridge.con12diag) +
+           length(bridge.con_12_21)
 end
 function MOI.get(
     bridge::HermitianToSymmetricPSDBridge{T},
@@ -177,7 +190,7 @@ function MOI.delete(model::MOI.ModelLike, bridge::HermitianToSymmetricPSDBridge)
     for ci in bridge.con_12_21
         MOI.delete(model, ci)
     end
-    MOI.delete(model, bridge.variables)
+    return MOI.delete(model, bridge.variables)
 end
 
 # Attributes, Bridge acting as a constraint
@@ -187,7 +200,9 @@ function MOI.get(
     ::MOI.ConstraintSet,
     bridge::HermitianToSymmetricPSDBridge,
 )
-    return COI.HermitianPositiveSemidefiniteConeTriangle(length(bridge.con12diag))
+    return COI.HermitianPositiveSemidefiniteConeTriangle(
+        length(bridge.con12diag),
+    )
 end
 
 function _matrix_indices(k)
@@ -212,7 +227,10 @@ function _variable_map(idx::MOIB.IndexInVector, n)
         return idx.value
     else
         i, j = _matrix_indices(idx.value - N)
-        return N + j * n + MOI.dimension(MOI.PositiveSemidefiniteConeTriangle(j)) + i
+        return N +
+               j * n +
+               MOI.dimension(MOI.PositiveSemidefiniteConeTriangle(j)) +
+               i
     end
 end
 function _variable(bridge::HermitianToSymmetricPSDBridge, i::MOIB.IndexInVector)
@@ -227,7 +245,7 @@ function MOI.get(
     values = MOI.get(model, attr, bridge.psd_constraint)
     M = MOI.dimension(MOI.get(model, MOI.ConstraintSet(), bridge))
     n = length(bridge.con12diag)
-    return [values[_variable_map(MOIB.IndexInVector(i), n)] for i = 1:M]
+    return [values[_variable_map(MOIB.IndexInVector(i), n)] for i in 1:M]
 end
 
 # See docstring of bridge for why we ignore the dual of the constraints
@@ -247,10 +265,10 @@ function MOI.get(
     k21 = MOI.dimension(MOI.PositiveSemidefiniteConeTriangle(2n)) + 1
     k22 = N
     k = 0
-    for j = 1:n
+    for j in 1:n
         k21 -= n + 1 - j
         k22 += n
-        for i = 1:j
+        for i in 1:j
             k11 += 1
             k12 += 1
             k21 -= 1
@@ -275,7 +293,7 @@ function MOI.get(
     bridge::HermitianToSymmetricPSDBridge{T},
     i::MOIB.IndexInVector,
 ) where {T}
-    value = MOI.get(model, attr, _variable(bridge, i))
+    return value = MOI.get(model, attr, _variable(bridge, i))
 end
 
 function MOIB.bridged_function(

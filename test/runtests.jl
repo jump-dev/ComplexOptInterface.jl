@@ -53,9 +53,12 @@ function projection_test(optimizer, config)
     primal = [(1 + √3) / 2, -1 / 2, (-1 + √3) / 2, 1 / 2]
     dual = [(3 - √3) / 6, 0.2886751198, (3 + √3) / 6, -0.2886751197]
     @test MOI.Utilities.set_dot(primal, dual, set) ≈ 0 atol = atol rtol = rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ primal atol = atol rtol = rtol
-    @test MOI.get(optimizer, MOI.ConstraintPrimal(), cx) ≈ primal atol = atol rtol = rtol
-    @test MOI.get(optimizer, MOI.ConstraintDual(), cx) ≈ dual atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ primal atol = atol rtol =
+        rtol
+    @test MOI.get(optimizer, MOI.ConstraintPrimal(), cx) ≈ primal atol = atol rtol =
+        rtol
+    @test MOI.get(optimizer, MOI.ConstraintDual(), cx) ≈ dual atol = atol rtol =
+        rtol
 end
 
 function hermitian_psd_test(optimizer, config)
@@ -72,9 +75,12 @@ function hermitian_psd_test(optimizer, config)
     )
     MOI.optimize!(optimizer)
     primal = [1.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0]
-    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ primal atol = atol rtol = rtol
-    @test MOI.get(optimizer, MOI.ConstraintPrimal(), cx) ≈ primal atol = atol rtol = rtol
-    @test MOI.get(optimizer, MOI.ConstraintDual(), cx) ≈ zeros(9) atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ primal atol = atol rtol =
+        rtol
+    @test MOI.get(optimizer, MOI.ConstraintPrimal(), cx) ≈ primal atol = atol rtol =
+        rtol
+    @test MOI.get(optimizer, MOI.ConstraintDual(), cx) ≈ zeros(9) atol = atol rtol =
+        rtol
 end
 
 function equalto_1_test(optimizer, config)
@@ -87,14 +93,16 @@ function equalto_1_test(optimizer, config)
     c = MOI.add_constraint(optimizer, func, MOI.EqualTo(1.0 + 1.0im))
     MOI.optimize!(optimizer)
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
-    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ [2 / 3, 1 / 3] atol = atol rtol =
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ [2 / 3, 1 / 3] atol =
+        atol rtol = rtol
+    @test MOI.get(optimizer, MOI.ConstraintPrimal(), cx) ≈ [2 / 3, 1 / 3] atol =
+        atol rtol = rtol
+    @test MOI.get(optimizer, MOI.ConstraintDual(), cx) ≈ zeros(2) atol = atol rtol =
         rtol
-    @test MOI.get(optimizer, MOI.ConstraintPrimal(), cx) ≈ [2 / 3, 1 / 3] atol = atol rtol =
+    @test MOI.get(optimizer, MOI.ConstraintPrimal(), c) ≈ 1.0 + 1.0im atol =
+        atol rtol = rtol
+    @test MOI.get(optimizer, MOI.ConstraintDual(), c) ≈ 0.0 + 0.0im atol = atol rtol =
         rtol
-    @test MOI.get(optimizer, MOI.ConstraintDual(), cx) ≈ zeros(2) atol = atol rtol = rtol
-    @test MOI.get(optimizer, MOI.ConstraintPrimal(), c) ≈ 1.0 + 1.0im atol = atol rtol =
-        rtol
-    @test MOI.get(optimizer, MOI.ConstraintDual(), c) ≈ 0.0 + 0.0im atol = atol rtol = rtol
 end
 
 function equalto_2_test(optimizer, config)
@@ -107,11 +115,16 @@ function equalto_2_test(optimizer, config)
     c = MOI.add_constraint(optimizer, func, MOI.EqualTo(2.0im))
     MOI.optimize!(optimizer)
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
-    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ [2.0] atol = atol rtol = rtol
-    @test MOI.get(optimizer, MOI.ConstraintPrimal(), cx) ≈ [2.0] atol = atol rtol = rtol
-    @test MOI.get(optimizer, MOI.ConstraintDual(), cx) ≈ zeros(1) atol = atol rtol = rtol
-    @test MOI.get(optimizer, MOI.ConstraintPrimal(), c) ≈ 2.0im atol = atol rtol = rtol
-    @test MOI.get(optimizer, MOI.ConstraintDual(), c) ≈ 0.0 + 0.0im atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ [2.0] atol = atol rtol =
+        rtol
+    @test MOI.get(optimizer, MOI.ConstraintPrimal(), cx) ≈ [2.0] atol = atol rtol =
+        rtol
+    @test MOI.get(optimizer, MOI.ConstraintDual(), cx) ≈ zeros(1) atol = atol rtol =
+        rtol
+    @test MOI.get(optimizer, MOI.ConstraintPrimal(), c) ≈ 2.0im atol = atol rtol =
+        rtol
+    @test MOI.get(optimizer, MOI.ConstraintDual(), c) ≈ 0.0 + 0.0im atol = atol rtol =
+        rtol
 end
 
 function zero_1_test(optimizer, config)
@@ -128,15 +141,16 @@ function zero_1_test(optimizer, config)
     )
     MOI.optimize!(optimizer)
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
-    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ [2 / 3, 1 / 3] atol = atol rtol =
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ [2 / 3, 1 / 3] atol =
+        atol rtol = rtol
+    @test MOI.get(optimizer, MOI.ConstraintPrimal(), cx) ≈ [2 / 3, 1 / 3] atol =
+        atol rtol = rtol
+    @test MOI.get(optimizer, MOI.ConstraintDual(), cx) ≈ zeros(2) atol = atol rtol =
         rtol
-    @test MOI.get(optimizer, MOI.ConstraintPrimal(), cx) ≈ [2 / 3, 1 / 3] atol = atol rtol =
-        rtol
-    @test MOI.get(optimizer, MOI.ConstraintDual(), cx) ≈ zeros(2) atol = atol rtol = rtol
-    @test MOI.get(optimizer, MOI.ConstraintPrimal(), c) ≈ [0.0 + 0.0im] atol = atol rtol =
-        rtol
-    @test MOI.get(optimizer, MOI.ConstraintDual(), c) ≈ [0.0 + 0.0im] atol = atol rtol =
-        rtol
+    @test MOI.get(optimizer, MOI.ConstraintPrimal(), c) ≈ [0.0 + 0.0im] atol =
+        atol rtol = rtol
+    @test MOI.get(optimizer, MOI.ConstraintDual(), c) ≈ [0.0 + 0.0im] atol =
+        atol rtol = rtol
 end
 
 function zero_2_test(optimizer, config)
@@ -153,13 +167,16 @@ function zero_2_test(optimizer, config)
     )
     MOI.optimize!(optimizer)
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
-    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ [2.0] atol = atol rtol = rtol
-    @test MOI.get(optimizer, MOI.ConstraintPrimal(), cx) ≈ [2.0] atol = atol rtol = rtol
-    @test MOI.get(optimizer, MOI.ConstraintDual(), cx) ≈ zeros(1) atol = atol rtol = rtol
-    @test MOI.get(optimizer, MOI.ConstraintPrimal(), c) ≈ [0.0 + 0.0im] atol = atol rtol =
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ [2.0] atol = atol rtol =
         rtol
-    @test MOI.get(optimizer, MOI.ConstraintDual(), c) ≈ [0.0 + 0.0im] atol = atol rtol =
+    @test MOI.get(optimizer, MOI.ConstraintPrimal(), cx) ≈ [2.0] atol = atol rtol =
         rtol
+    @test MOI.get(optimizer, MOI.ConstraintDual(), cx) ≈ zeros(1) atol = atol rtol =
+        rtol
+    @test MOI.get(optimizer, MOI.ConstraintPrimal(), c) ≈ [0.0 + 0.0im] atol =
+        atol rtol = rtol
+    @test MOI.get(optimizer, MOI.ConstraintDual(), c) ≈ [0.0 + 0.0im] atol =
+        atol rtol = rtol
 end
 
 import CSDP
@@ -174,9 +191,15 @@ import CSDP
     hermitian_psd_test(bridged, config)
 
     bridged = MOI.Bridges.LazyBridgeOptimizer(
-        MOI.Utilities.CachingOptimizer(MOI.Utilities.Model{Float64}(), CSDP.Optimizer()),
+        MOI.Utilities.CachingOptimizer(
+            MOI.Utilities.Model{Float64}(),
+            CSDP.Optimizer(),
+        ),
     )
-    MOI.Bridges.add_bridge(bridged, COI.Bridges.Constraint.SplitEqualToBridge{Float64})
+    MOI.Bridges.add_bridge(
+        bridged,
+        COI.Bridges.Constraint.SplitEqualToBridge{Float64},
+    )
     equalto_1_test(bridged, config)
     cis = MOI.get(
         bridged.model,
@@ -197,10 +220,19 @@ import CSDP
     @test length(cis) == 1
 
     bridged = MOI.Bridges.LazyBridgeOptimizer(
-        MOI.Utilities.CachingOptimizer(MOI.Utilities.Model{Float64}(), CSDP.Optimizer()),
+        MOI.Utilities.CachingOptimizer(
+            MOI.Utilities.Model{Float64}(),
+            CSDP.Optimizer(),
+        ),
     )
-    MOI.Bridges.add_bridge(bridged, MOI.Bridges.Constraint.ScalarizeBridge{Float64})
-    MOI.Bridges.add_bridge(bridged, COI.Bridges.Constraint.SplitZeroBridge{Float64})
+    MOI.Bridges.add_bridge(
+        bridged,
+        MOI.Bridges.Constraint.ScalarizeBridge{Float64},
+    )
+    MOI.Bridges.add_bridge(
+        bridged,
+        COI.Bridges.Constraint.SplitZeroBridge{Float64},
+    )
     zero_1_test(bridged, config)
     cis = MOI.get(
         bridged.model,

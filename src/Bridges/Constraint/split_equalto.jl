@@ -36,8 +36,12 @@ function MOI.supports_constraint(
 ) where {T}
     return true
 end
-MOIB.added_constrained_variable_types(::Type{<:SplitEqualToBridge}) = Tuple{DataType}[]
-function MOIB.added_constraint_types(::Type{SplitEqualToBridge{T,F,G}}) where {T,F,G}
+function MOIB.added_constrained_variable_types(::Type{<:SplitEqualToBridge})
+    return Tuple{DataType}[]
+end
+function MOIB.added_constraint_types(
+    ::Type{SplitEqualToBridge{T,F,G}},
+) where {T,F,G}
     return Tuple{DataType,DataType}[(F, MOI.EqualTo{T})]
 end
 function MOI.Bridges.Constraint.concrete_bridge_type(
@@ -54,7 +58,8 @@ function MOI.get(
     bridge::SplitEqualToBridge{T,F},
     ::MOI.NumberOfConstraints{F,MOI.EqualTo{T}},
 ) where {T,F}
-    return !isnothing(bridge.real_constraint) + !isnothing(bridge.imag_constraint)
+    return !isnothing(bridge.real_constraint) +
+           !isnothing(bridge.imag_constraint)
 end
 function MOI.get(
     bridge::SplitEqualToBridge{T,F},
