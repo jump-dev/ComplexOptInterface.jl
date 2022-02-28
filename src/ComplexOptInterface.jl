@@ -9,10 +9,13 @@ const MOI = MathOptInterface
 struct HermitianPositiveSemidefiniteConeTriangle <: MOI.AbstractVectorSet
     side_dimension::Int
 end
+
 function MOI.dimension(set::HermitianPositiveSemidefiniteConeTriangle)
     return MOI.dimension(MOI.PositiveSemidefiniteConeTriangle(set.side_dimension)) +
            MOI.dimension(MOI.PositiveSemidefiniteConeTriangle(set.side_dimension - 1))
 end
+
+Base.copy(set::HermitianPositiveSemidefiniteConeTriangle) = set
 
 function MOI.Utilities.set_dot(
     x::AbstractVector,
@@ -28,5 +31,6 @@ function MOI.Utilities.set_dot(
 end
 
 include("Bridges/Bridges.jl")
+include("jump.jl")
 
 end # module
