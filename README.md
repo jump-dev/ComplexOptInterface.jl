@@ -8,6 +8,23 @@
 | [![Codecov branch][codecov-img]][codecov-url] | [<img src="https://upload.wikimedia.org/wikipedia/en/a/af/Discourse_logo.png" width="64">][discourse-url] |
 
 An extension of MathOptInterface to complex sets.
+
+## How to use
+
+Add to the JuMP model the bridges of this package with `add_all_bridges` and then you can create complex equality constraints and complex hermitian matrices:
+```julia
+using JuMP
+import ComplexOptInterface
+const COI = ComplexOptInterface
+
+model = Model()
+COI.add_all_bridges(model)
+@variable(model, x[1:2, 1:2] in COI.HermitianPSDCone())
+@constraint(model, x[1, 1] + x[2, 2] * im == 1 + 2im)
+```
+
+## Design considerations
+
 There are two types of complex sets:
 1) Some sets have complex entries, i.e. `MOI.EqualTo{Complex{Float64}}`,
 2) Some sets have real entries even if they model a complex mathematical set, i.e.
