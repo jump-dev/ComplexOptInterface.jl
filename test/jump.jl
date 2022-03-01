@@ -9,7 +9,13 @@ using Test
 function test_readme_example()
     model = Model()
     COI.add_all_bridges(model)
-    @variable(model, x in COI.ComplexPlane(), start = 5 + 6im, lower_bound = 1 + 2im, upper_bound = 3 + 4im)
+    @variable(
+        model,
+        x in COI.ComplexPlane(),
+        start = 5 + 6im,
+        lower_bound = 1 + 2im,
+        upper_bound = 3 + 4im
+    )
     xr = first(x.terms).first
     xi = collect(x.terms)[2].first
     @test lower_bound(xr) == 1

@@ -17,7 +17,11 @@ function JuMP.build_variable(::Function, v::JuMP.ScalarVariable, ::ComplexPlane)
     return ComplexVariable(v.info)
 end
 
-function JuMP.add_variable(model::JuMP.Model, v::ComplexVariable, name::String = "")
+function JuMP.add_variable(
+    model::JuMP.Model,
+    v::ComplexVariable,
+    name::String = "",
+)
     model.is_model_dirty = true
     var = JuMP.ScalarVariable(v.info)
     real_part = JuMP.add_variable(model, _real(var), _real(name))
