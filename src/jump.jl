@@ -7,6 +7,33 @@ function add_all_bridges(model::JuMP.Model)
     return JuMP.add_bridge(model, Bridges.Constraint.SplitZeroBridge)
 end
 
+struct ComplexPlane end
+
+struct ComplexVariable{S,T,U,V} <: JuMP.AbstractVariable
+    info::JuMP.VariableInfo{S,T,U,V}
+end
+
+function JuMP.build_variable(::Function, v::JuMP.ScalarVariable, ::ComplexPlane)
+    return ComplexVariable(v.info)
+end
+
+function JuMP.add_variable(
+    model::JuMP.Model,
+    v::ComplexVariable,
+    name::String = "",
+)
+    model.is_model_dirty = true
+    var = JuMP.ScalarVariable(v.info)
+    real_part = JuMP.add_variable(model, _real(var), _real(name))
+    imag_part = JuMP.add_variable(model, _imag(var), _imag(name))
+    # Efficiently build `real_part + imag_part * im`
+    return JuMP.GenericAffExpr{ComplexF64,JuMP.VariableRef}(
+        zero(ComplexF64),
+        real_part => one(ComplexF64),
+        imag_part => convert(ComplexF64, im),
+    )
+end
+
 struct HermitianPSDCone end
 
 struct HermitianMatrixShape <: JuMP.AbstractShape
@@ -64,8 +91,8 @@ function _mapinfo(f::Function, v::JuMP.ScalarVariable)
     )
 end
 
-_real(s::String) = s
-_imag(s::String) = s
+_real(s::String) = string("real(", s, ")")
+_imag(s::String) = string("imag(", s, ")")
 
 _real(v::JuMP.ScalarVariable) = _mapinfo(real, v)
 _imag(v::JuMP.ScalarVariable) = _mapinfo(imag, v)

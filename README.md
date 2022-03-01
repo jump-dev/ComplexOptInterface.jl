@@ -19,8 +19,9 @@ const COI = ComplexOptInterface
 
 model = Model()
 COI.add_all_bridges(model)
-@variable(model, x[1:2, 1:2] in COI.HermitianPSDCone())
-@constraint(model, x[1, 1] + x[2, 2] * im == 1 + 2im)
+@variable(model, x in COI.ComplexPlane(), start = 5 + 6im, lower_bound = 1 + 2im, upper_bound = 3 + 4im)
+@variable(model, Q[1:2, 1:2] in COI.HermitianPSDCone())
+@constraint(model, (1 + 2im) * x + Q[1, 1] + Q[2, 2] * im == 1 + 2im)
 ```
 
 ## Design considerations
