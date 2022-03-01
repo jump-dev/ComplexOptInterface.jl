@@ -9,15 +9,33 @@ using Test
 function test_readme_example()
     model = Model()
     COI.add_all_bridges(model)
-    @variable(model, x[1:2, 1:2] in COI.HermitianPSDCone())
-    @test num_variables(model) == 4
+    @variable(model, x in COI.ComplexPlane(), start = 5 + 6im, lower_bound = 1 + 2im, upper_bound = 3 + 4im)
+    xr = first(x.terms).first
+    xi = collect(x.terms)[2].first
+    @test lower_bound(xr) == 1
+    @test upper_bound(xr) == 3
+    @test start_value(xr) == 5
+    @test lower_bound(xi) == 2
+    @test upper_bound(xi) == 4
+    @test start_value(xi) == 6
+    @variable(model, Q[1:2, 1:2] in COI.HermitianPSDCone())
+    @test num_variables(model) == 6
     v = all_variables(model)
-    @test x[1, 1] == 1v[1]
-    @test x[1, 2] == v[2] + v[4] * im
-    @test x[2, 2] == 1v[3]
+    @test xr == v[1]
+    @test name(v[1]) == "real(x)"
+    @test xi == v[2]
+    @test name(v[2]) == "imag(x)"
+    @test x == v[1] + v[2] * im
+    @test name(v[3]) == "real(Q[1,1])"
+    @test Q[1, 1] == 1v[3]
+    @test name(v[4]) == "real(Q[1,2])"
+    @test name(v[6]) == "imag(Q[1,2])"
+    @test Q[1, 2] == v[4] + v[6] * im
+    @test name(v[5]) == "real(Q[2,2])"
+    @test Q[2, 2] == 1v[5]
     # FIXME needs https://github.com/jump-dev/JuMP.jl/pull/2899
-    #@test x[2, 1] == conj(x[1, 2])
-    @constraint(model, x[1, 1] + x[2, 2] * im == 1 + 2im)
+    #@test Q[2, 1] == conj(x[1, 2])
+    @constraint(model, Q[1, 1] + Q[2, 2] * im == 1 + 2im)
 end
 
 function test_simple_equality()
