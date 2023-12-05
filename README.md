@@ -1,6 +1,6 @@
-# ComplexOptInterface
+**This package is deprecated and should not be used. The features in it have been moved to JuMP and MathOptInterface.**
 
-**This package is still in early development, feedback is welcome!**
+# ComplexOptInterface
 
 | **Build Status** | **Social** |
 |:----------------:|:----------:|
